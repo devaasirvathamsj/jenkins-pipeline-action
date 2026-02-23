@@ -1,0 +1,25 @@
+pipeline {
+agent any
+stages{
+stage('build docker image') {
+step{
+//  build a docker image
+sh "docker build -t devaasirvatham/app:latest"
+    }
+  }
+}
+stage('run docker') {
+step{
+// run docker image
+sh "docker run -d -p 8000:8000 app:latest"
+   }
+ }
+stage('rm container') {
+step{
+// remove the container
+sh "docker stop app:latest"
+   "docker rm -f app:latest"
+   "docker rmi app:latest"
+   }
+ }
+}
