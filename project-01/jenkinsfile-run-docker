@@ -1,25 +1,31 @@
 pipeline {
-agent any
-stages{
-stage('build docker image') {
-step{
-//  build a docker image
-sh "docker build -t devaasirvatham/app:latest"
+    agent any
+
+    environment {
+        IMAGE_NAME = "devaasirvatham/app"
+        CONTAINER_NAME = "myapp-container"
     }
-  }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:latest ."
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh "docker run -d -p 8000:8000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Remove Container & Image') {
+            steps {
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm -f ${CONTAINER_NAME} || true"
+                sh "docker rmi ${IMAGE_NAME}:latest || true"
+            }
+        }
+    }
 }
-stage('run docker') {
-step{
-// run docker image
-sh "docker run -d -p 8000:8000 app:latest"
-   }
- }
-stage('rm container') {
-step{
-// remove the container
-sh "docker stop app:latest"
-   "docker rm -f app:latest"
-   "docker rmi app:latest"
-   }
- }
-}
+
